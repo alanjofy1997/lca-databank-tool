@@ -34,7 +34,7 @@ A web-based Life Cycle Assessment calculator based on EN 15804+A2.
 
 \## Live Demo
 
-Frontend: https://YOUR\_USERNAME.github.io/lca-databank-tool  
+Frontend: https://alanjofy1997.github.io/lca-databank-tool  
 
 Backend API: https://YOUR-RENDER-URL.onrender.com
 
@@ -47,6 +47,7 @@ Backend API: https://YOUR-RENDER-URL.onrender.com
 Master’s in Environmental Sustainability  
 
 LCA | CSRD | GaBi
+
 
 
 
