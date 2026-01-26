@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LCA Calculator</title>
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    if (sessionStorage.getItem("loggedIn") !== "true") {
+      window.location.href = "index.html";
+    }
+  </script>
+</head>
+<body>
+
+<div class="container">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>🌍 LCA Material Calculator</h1>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+  <p class="subtitle">EN 15804+A2 | EF 3.1 | Quantity-based Impact</p>
+
+  <div id="materialsContainer"></div>
+
+  <button id="addMaterialBtn">+ Add Material</button>
+  <button id="viewResultsBtn">📊 View Results</button>
+
+  <h2>Total Environmental Impact</h2>
+  <table id="totalTable">
+    <thead>
+      <tr>
+        <th>Indicator</th>
+        <th>Total Value</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script src="app.js"></script>
+<script>
+function logout() {
+  sessionStorage.removeItem("loggedIn");
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
