@@ -104,4 +104,3 @@ function renderTotals(totals) {
     totalTableBody.appendChild(tr);
   });
 }
-
