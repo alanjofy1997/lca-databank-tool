@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8000";
+const API = "https://lca-databank-backend.onrender.com";
 const container = document.getElementById("materialsContainer");
 const totalTableBody = document.querySelector("#totalTable tbody");
 const addBtn = document.getElementById("addMaterialBtn");
