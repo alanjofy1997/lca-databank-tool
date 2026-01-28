@@ -4,9 +4,18 @@ const totalTableBody = document.querySelector("#totalTable tbody");
 const addBtn = document.getElementById("addMaterialBtn");
 const viewBtn = document.getElementById("viewResultsBtn");
 
+let databank = [];
+let materialNames = [];
 let materialsData = [];
 
-addMaterialBlock(); // start with one
+// 🔹 Load databank ONCE
+fetch(`${API}/databank`)
+  .then(res => res.json())
+  .then(data => {
+    databank = data;
+    materialNames = databank.map(d => d.Materials);
+    addMaterialBlock();
+  });
 
 addBtn.onclick = () => addMaterialBlock();
 viewBtn.onclick = () => calculateTotals();
@@ -33,37 +42,36 @@ function addMaterialBlock() {
 
   let selectedMaterial = null;
 
-  searchInput.addEventListener("input", async () => {
-    const q = searchInput.value.trim();
-    if (!q) return suggestions.innerHTML = "";
-
-    const res = await fetch(`${API}/search?q=${q}`);
-    const mats = await res.json();
+  // 🔹 LOCAL SEARCH (INSTANT)
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.toLowerCase();
     suggestions.innerHTML = "";
+    if (!q) return;
 
-    mats.forEach(m => {
-      const div = document.createElement("div");
-      div.textContent = m;
-      div.onclick = () => selectMaterial(m);
-      suggestions.appendChild(div);
-    });
+    materialNames
+      .filter(m => m.toLowerCase().includes(q))
+      .slice(0, 8) // limit suggestions
+      .forEach(name => {
+        const div = document.createElement("div");
+        div.textContent = name;
+        div.onclick = () => selectMaterial(name);
+        suggestions.appendChild(div);
+      });
   });
 
-  async function selectMaterial(name) {
+  function selectMaterial(name) {
     searchInput.value = name;
     suggestions.innerHTML = "";
-
-    const res = await fetch(`${API}/material/${encodeURIComponent(name)}`);
-    selectedMaterial = await res.json();
+    selectedMaterial = databank.find(d => d.Materials === name);
   }
 
   deleteBtn.onclick = () => {
     container.removeChild(block);
-    materialsData = materialsData.filter(item => item.block !== block);
+    materialsData = materialsData.filter(i => i.block !== block);
   };
 
   materialsData.push({
-    block: block,
+    block,
     getMaterial: () => selectedMaterial,
     getQty: () => parseFloat(qtyInput.value) || 0
   });
@@ -75,16 +83,15 @@ function calculateTotals() {
   materialsData.forEach(item => {
     const mat = item.getMaterial();
     const qty = item.getQty();
-
     if (!mat || qty === 0) return;
 
-    Object.entries(mat).forEach(([key, val]) => {
-      if (key === "Materials") return;
-      const num = parseFloat(val);
-      if (isNaN(num)) return;
-
-      totals[key] = (totals[key] || 0) + num * qty;
-    });
+    for (const key in mat) {
+      if (key === "Materials") continue;
+      const val = Number(mat[key]);
+      if (!isNaN(val)) {
+        totals[key] = (totals[key] || 0) + val * qty;
+      }
+    }
   });
 
   renderTotals(totals);
@@ -93,14 +100,15 @@ function calculateTotals() {
 function renderTotals(totals) {
   totalTableBody.innerHTML = "";
 
-  if (Object.keys(totals).length === 0) {
-    totalTableBody.innerHTML = `<tr><td colspan="2">No results to display</td></tr>`;
+  if (!Object.keys(totals).length) {
+    totalTableBody.innerHTML = `<tr><td colspan="2">No results</td></tr>`;
     return;
   }
 
-  Object.entries(totals).forEach(([key, val]) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${key}</td><td>${val.toFixed(2)}</td>`;
-    totalTableBody.appendChild(tr);
-  });
+  // 🔹 Build HTML once (FAST)
+  let html = "";
+  for (const [k, v] of Object.entries(totals)) {
+    html += `<tr><td>${k}</td><td>${v.toFixed(2)}</td></tr>`;
+  }
+  totalTableBody.innerHTML = html;
 }
