@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
+import os
 
 app = FastAPI(title="LCA Databank API")
 
@@ -11,16 +12,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-databank = pd.read_csv("databank.csv")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(BASE_DIR, "databank.csv")
 
-@app.get("/search")
-def search_materials(q: str):
-    results = databank[databank["Materials"].str.contains(q, case=False, na=False)]
-    return results["Materials"].tolist()
+# 🔹 Load once at startup
+databank = pd.read_csv(csv_path)
+databank.fillna(0, inplace=True)
 
-@app.get("/material/{name}")
-def get_material(name: str):
-    row = databank[databank["Materials"] == name]
-    if row.empty:
-        return {"error": "Material not found"}
-    return row.to_dict(orient="records")[0]
+# Convert to list of dicts ONCE
+DATA = databank.to_dict(orient="records")
+
+@app.get("/databank")
+def get_databank():
+    return DATA
